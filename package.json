@@ -1,0 +1,28 @@
+{
+  "name": "com.curvaturegames.spaceextender",
+  "version": "1.0.0",
+  "displayName": "Space Extender",
+  "description": "A Unity Plugin to Aid Level Design for VR Experiences with Natural Locomotion.",
+  "unity": "2019.4",
+  "keywords": [
+    "curvature",
+    "games",
+    "space",
+    "extender",
+    "vr",
+    "redirected",
+    "walking"
+  ],
+  "samples":[
+  {
+    "displayName": "Prefabs",
+    "description": "Imports useful Prefabs into your Assets folder",
+    "path": "Samples~/Prefabs"
+  }
+  ],
+  "author": {
+    "name": "Curvature Games",
+    "email": "mail@curvaturegames.com",
+    "url": "https://curvaturegames.com/"
+  }
+}

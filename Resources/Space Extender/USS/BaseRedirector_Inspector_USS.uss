@@ -1,0 +1,12 @@
+IMGUIContainer {
+    margin-bottom: 2px;
+    padding: 2px;
+    padding-top: 2px;
+}
+
+.space-extender-custom-vector FloatField, .space-extender-custom-vector FloatField Label{
+    flex-basis: auto;
+}
+.toggle-container {
+    margin-left: 15px;
+}

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+
+xsi:noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+xsi:schemaLocation="
+                        UnityEngine.UIElements ../../../../../../UIElementsSchema/UnityEngine.UIElements.xsd
+                        UnityEditor.UIElements ../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
+                        UnityEditor.PackageManager.UI ../../../../../../UIElementsSchema/UnityEditor.PackageManager.UI.xsd
+"
+>
+  <editor:PropertyField binding-path="objectToHide" name="object-to-hide" tooltip=""/>
+  <editor:PropertyField binding-path="transition" name="transition" tooltip=""/>
+  <editor:PropertyField binding-path="playerStartsInThisRoom" name="player-starts-in-this-room" tooltip=""/>
+  <engine:Foldout text="Area Vizualization" tooltip="editor tool to visualize transition and interior area">
+    <editor:PropertyField binding-path="showAreaGizmos" name= "show gizmos" tooltip="this will show the collider bounds of the transition area (light gray) and the interior area (dark gray) in the scene view"/>
+    <editor:PropertyField binding-path="transitionArea" name="transition-area" tooltip=""/>
+    <editor:PropertyField binding-path="interiorArea" name="interior-area" tooltip=""/>
+  </engine:Foldout>
+</engine:UXML>

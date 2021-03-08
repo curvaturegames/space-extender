@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+
+xsi:noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+xsi:schemaLocation="
+                        UnityEngine.UIElements ../../../../../../UIElementsSchema/UnityEngine.UIElements.xsd
+                        UnityEditor.UIElements ../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
+                        UnityEditor.PackageManager.UI ../../../../../../UIElementsSchema/UnityEditor.PackageManager.UI.xsd
+"
+>
+    <editor:PropertyField binding-path="material" name="material" />
+    <editor:PropertyField binding-path="head" name="head" />
+    <editor:PropertyField binding-path="playerPin" name="playerPin" />
+    <editor:PropertyField binding-path="northIsAlwaysUp" name="northIsAlwaysUp" />
+    <editor:PropertyField binding-path="handTransform" name="handTransform" />
+    <editor:PropertyField binding-path="onlyShowWhenPlayerLooksAtHand"/>
+    <editor:PropertyField binding-path="switchMapOrientation"/>
+    <editor:PropertyField binding-path="hand"/>
+    <engine:Button name="regenerate-map" text="regenerate minimap" />
+</engine:UXML>

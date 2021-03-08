@@ -1,0 +1,17 @@
+{
+    "name": "CurvatureGames.SpaceExtender.Editor",
+    "references": [
+        "GUID:0d665c0c78dbed94d8c8461708934490"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

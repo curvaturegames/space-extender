@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+
+xsi:noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+xsi:schemaLocation="
+                        UnityEngine.UIElements ../../../../../../UIElementsSchema/UnityEngine.UIElements.xsd
+                        UnityEditor.UIElements ../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
+                        UnityEditor.PackageManager.UI ../../../../../../UIElementsSchema/UnityEditor.PackageManager.UI.xsd
+"
+>
+    <editor:PropertyField binding-path="rotationPoint" name="rotation-point-field" tooltip="Point in local space around which the playarea is rotated. When redirection starts, the player should stand as close as possible to this point in order to reduce motionsickness."/>
+    <editor:PropertyField binding-path="rotationDegrees" name="rotation-degrees-field" tooltip="total rotation in degrees by which the player will be redirected"/>
+    <editor:PropertyField binding-path="leftRotationGain" name="left-rotation-gain-field" tooltip="Gain that is applied to counterclockwise rotations by the user."/>
+    <editor:PropertyField binding-path="rightRotationGain" name="right-rotation-gain-field" tooltip="Gain that is applied to clockwise rotations by the user."/>
+    <editor:PropertyField binding-path="velocityDependentGain" name="velocity-dependent-gain-field" label="Use velocity dependent gain" tooltip="Should the gain be applied depending on the rotation speed?"/>
+    <engine:VisualElement name="velocity-dependent-gain-toggle-container" class="toggle-container">
+        <editor:PropertyField binding-path="rotationSpeedUpperThreshold" name="rotation-speed-upper-threshold-field" tooltip="Rotations slower than this will have gains applied lineraly depending on the rotation speed. Rotations faster than this will have full gain applied. (in deg per sec)"/>
+    </engine:VisualElement>
+</engine:UXML>

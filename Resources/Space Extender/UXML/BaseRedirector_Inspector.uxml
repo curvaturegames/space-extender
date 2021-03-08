@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+
+xsi:noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+xsi:schemaLocation="
+                        UnityEngine.UIElements ../../../../../../UIElementsSchema/UnityEngine.UIElements.xsd
+                        UnityEditor.UIElements ../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
+                        UnityEditor.PackageManager.UI ../../../../../../UIElementsSchema/UnityEditor.PackageManager.UI.xsd
+"
+>
+    <editor:PropertyField binding-path="playAreaDimensions" name="playarea-dimensions"/>
+    <editor:PropertyField binding-path="redirectionObject" name="redirection-object-field" tooltip="All redirection gains are applied to this gameobject. The VR playarea must be one of it's children for redirection to work."/>
+    <engine:VisualElement name="redirection-object-warning"/>
+    <editor:PropertyField binding-path="OnRedirectionStarted" name="redirection-started-event"/>
+    <editor:PropertyField binding-path="OnRedirectionEnded" name="redirection-ended-event"/>
+</engine:UXML>
