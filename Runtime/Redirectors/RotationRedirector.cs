@@ -96,7 +96,7 @@ namespace CurvatureGames.SpaceExtender
             {
                 
                 float rotationDelta = GetRotationDelta(lastHeadRotation, hmdRotation);
-                totalRealRotation += Mathf.Abs(rotationDelta);
+                UpdateLogging(rotationDelta);
                 float gain = GetGain(rotationDelta);
 
                 float normalizedRotation = Mathf.Abs(Mathf.Abs(rotationDelta) * gain) / Mathf.Abs(targetRotationAngle);
@@ -178,7 +178,7 @@ namespace CurvatureGames.SpaceExtender
         /// </summary>
         public override void StartRedirection()
         {
-            totalTime = Time.time;
+            StartLogging();
             targetRotationAngle = GetRotationDelta(StartPlayAreaRotation, EndPlayAreaRotation);
             rotationProgress = 0f;
             isRedirecting = true;
@@ -190,11 +190,9 @@ namespace CurvatureGames.SpaceExtender
         /// </summary>
         public override void EndRedirection()
         {
-            totalTime = Time.time - totalTime;
+            
             isRedirecting = false;
-
-            DataWriter writer = GameObject.Find("Writer").GetComponent<DataWriter>();
-            writer.logData(this.name, totalTime, totalRealRotation);
+            EndLogging();
 
             base.EndRedirection();
         }
@@ -204,6 +202,27 @@ namespace CurvatureGames.SpaceExtender
         }
         public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Quaternion rotation) {
             return rotation * (point - pivot) + pivot;
+        }
+
+        private void StartLogging()
+        {
+            if(SpaceExtenderLoggingManager.Instance.LoggingEnabled == true)
+                totalTime = Time.time;
+        }
+
+        private void UpdateLogging(float rotationDelta)
+        {
+            if (SpaceExtenderLoggingManager.Instance.LoggingEnabled == true)
+                totalRealRotation += Mathf.Abs(rotationDelta);
+        }
+
+        private void EndLogging()
+        {
+            if (SpaceExtenderLoggingManager.Instance.LoggingEnabled == true)
+            {
+                totalTime = Time.time - totalTime;
+                SpaceExtenderLoggingManager.Instance.LogData(gameObject.name, totalTime, totalRealRotation);
+            }
         }
     }
 }
