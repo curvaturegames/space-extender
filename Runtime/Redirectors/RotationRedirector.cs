@@ -220,6 +220,7 @@ namespace CurvatureGames.SpaceExtender
         {
             if (SpaceExtenderLoggingManager.Instance.LoggingEnabled == true)
             {
+                Debug.Log("Hallo");
                 totalTime = Time.time - totalTime;
                 SpaceExtenderLoggingManager.Instance.LogData(gameObject.name, totalTime, totalRealRotation);
             }

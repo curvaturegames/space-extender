@@ -11,8 +11,8 @@ namespace CurvatureGames.SpaceExtender
 {
     public class SpaceExtenderLoggingManager : MonoBehaviour
     {
-        
 
+        public bool LoggingEnabled = true;
         private static SpaceExtenderLoggingManager instance;
 
         private void Awake()
@@ -24,7 +24,6 @@ namespace CurvatureGames.SpaceExtender
                 {
                     using (StreamWriter writer = new StreamWriter(Getpath()))
                     {
-                        Debug.Log("Hallo");
                         //First Line in File
                         writer.WriteLine("RotatorID,Rotation Duration,Added up Rotation Degree");
                     }
@@ -43,7 +42,7 @@ namespace CurvatureGames.SpaceExtender
                 if (instance == null) {
                     var gameobject = new GameObject("SpaceExtenderLoggingManager");
                     instance = gameobject.AddComponent<SpaceExtenderLoggingManager>();
-                    instance.LoggingEnabled = false;
+                    instance.LoggingEnabled = true;
                 }
                 return instance;
             } 
@@ -53,7 +52,7 @@ namespace CurvatureGames.SpaceExtender
             }
         }
 
-        public bool LoggingEnabled = true;
+        
 
         public void LogData(string name, float totaltime, float totalangle)
         {
