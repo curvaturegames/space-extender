@@ -192,6 +192,10 @@ namespace CurvatureGames.SpaceExtender
         {
             totalTime = Time.time - totalTime;
             isRedirecting = false;
+
+            DataWriter writer = GameObject.Find("Writer").GetComponent<DataWriter>();
+            writer.logData(this.name, totalTime, totalRealRotation);
+
             base.EndRedirection();
         }
 
