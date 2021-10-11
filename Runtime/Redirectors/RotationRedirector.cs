@@ -41,6 +41,9 @@ namespace CurvatureGames.SpaceExtender
         private Quaternion lastHeadRotation = Quaternion.identity;
         private float lastAngleRotation = 0f;
         private float rotationProgress = 0f;
+
+        //Logging Value
+        private float totalRealRotation = 0f;
     
         // Properties ----------------------------------------------------------------------------------------
 
@@ -90,6 +93,7 @@ namespace CurvatureGames.SpaceExtender
             if (isRedirecting)
             {
                 float rotationDelta = GetRotationDelta(lastHeadRotation, hmdRotation);
+                totalRealRotation += Mathf.Abs(rotationDelta);
                 float gain = GetGain(rotationDelta);
 
                 float normalizedRotation = Mathf.Abs(Mathf.Abs(rotationDelta) * gain) / Mathf.Abs(targetRotationAngle);
@@ -184,6 +188,8 @@ namespace CurvatureGames.SpaceExtender
         {
             isRedirecting = false;
             base.EndRedirection();
+
+            Debug.Log("Gesammte Reale Rotation" + totalRealRotation);
         }
 
         public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles) {
