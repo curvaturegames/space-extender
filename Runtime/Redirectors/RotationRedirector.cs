@@ -41,6 +41,10 @@ namespace CurvatureGames.SpaceExtender
         private Quaternion lastHeadRotation = Quaternion.identity;
         private float lastAngleRotation = 0f;
         private float rotationProgress = 0f;
+
+        //Logging Value
+        private float totalRealRotation = 0f;
+        private float totalTime = 0f;
     
         // Properties ----------------------------------------------------------------------------------------
 
@@ -81,6 +85,7 @@ namespace CurvatureGames.SpaceExtender
         /// </summary>
         private void RotationRedirection()
         {
+            
             Quaternion hmdRotation;
             // if the current hmd rotation is not avaiable this frame
             if(!TryGetHMDRotation(out hmdRotation))
@@ -89,7 +94,9 @@ namespace CurvatureGames.SpaceExtender
             }
             if (isRedirecting)
             {
+                
                 float rotationDelta = GetRotationDelta(lastHeadRotation, hmdRotation);
+                UpdateLogging(rotationDelta);
                 float gain = GetGain(rotationDelta);
 
                 float normalizedRotation = Mathf.Abs(Mathf.Abs(rotationDelta) * gain) / Mathf.Abs(targetRotationAngle);
@@ -171,6 +178,7 @@ namespace CurvatureGames.SpaceExtender
         /// </summary>
         public override void StartRedirection()
         {
+            StartLogging();
             targetRotationAngle = GetRotationDelta(StartPlayAreaRotation, EndPlayAreaRotation);
             rotationProgress = 0f;
             isRedirecting = true;
@@ -182,7 +190,10 @@ namespace CurvatureGames.SpaceExtender
         /// </summary>
         public override void EndRedirection()
         {
+            
             isRedirecting = false;
+            EndLogging();
+
             base.EndRedirection();
         }
 
@@ -191,6 +202,28 @@ namespace CurvatureGames.SpaceExtender
         }
         public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Quaternion rotation) {
             return rotation * (point - pivot) + pivot;
+        }
+
+        private void StartLogging()
+        {
+            if(SpaceExtenderLoggingManager.Instance.LoggingEnabled == true)
+                totalTime = Time.time;
+        }
+
+        private void UpdateLogging(float rotationDelta)
+        {
+            if (SpaceExtenderLoggingManager.Instance.LoggingEnabled == true)
+                totalRealRotation += Mathf.Abs(rotationDelta);
+        }
+
+        private void EndLogging()
+        {
+            if (SpaceExtenderLoggingManager.Instance.LoggingEnabled == true)
+            {
+                Debug.Log("Hallo");
+                totalTime = Time.time - totalTime;
+                SpaceExtenderLoggingManager.Instance.LogData(gameObject.name, totalTime, totalRealRotation);
+            }
         }
     }
 }
