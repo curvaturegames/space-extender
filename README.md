@@ -9,7 +9,7 @@ Status 11.10.2021
 SpaceExtenderLoggingManager is a tool to log specific data from the Rotation Redirector.
 
 **What is getting logged?**
-The tool is saving three different pieces of information at this moment. The Name of the redirector, the time it took to redirect and the total of rotations in degree performed in real life. 
+The tool is saving three different pieces of information at this moment. The Name of the redirector (name of gameobject the redirector script is on), the time it took to redirect and the total of rotations in degree performed in real life. 
 
 **When is it getting logged?**
 The information is getting collected during the redirection and saved after the redirection is completed. (This could also be changed to periodic logging if needed.)
