@@ -37,7 +37,7 @@ namespace CurvatureGames.SpaceExtender
         /// Center position of the end playarea. (worldspace)
         /// </summary>
         /// <returns></returns>
-        public override Vector3 EndPlayAreaPosition { get { return transform.TransformPoint(translationDirection.normalized * translationAmount); } }
+        public override Vector3 EndPlayAreaPosition { get { return transform.TransformPoint(translationDirection.normalized * translationAmount); } } //normalized is zero vector if used on zero vector
 
         /// <summary>
         /// Rotation of the end playarea. (worldspace)
@@ -63,6 +63,9 @@ namespace CurvatureGames.SpaceExtender
         protected override void Awake()
         {
             base.Awake();
+
+            // Use the normalized direction
+            translationDirection = translationDirection.normalized;
         }
 
         protected override void Update()
@@ -82,48 +85,88 @@ namespace CurvatureGames.SpaceExtender
             {
                 hmdPosition = lastHeadPosition;
             }
+
             if (isRedirecting)
             {
                 Vector3 translationDelta = hmdPosition - lastHeadPosition;
                 Vector3 gainVector = GetGain(translationDelta);
+                Vector3 gainedTranslation = Vector3.Scale(gainVector, translationDelta);
 
-                // TODO: translationProgress
+                // TODO: Currently leads to a translation that is slightly further than intended
+                if (translationProgress.x == 1.0f)
+                {
+                    gainedTranslation.x = 0.0f;
+                }
+                else 
+                {
+                    translationProgress.x = Mathf.Clamp01(translationProgress.x + Mathf.Abs(gainedTranslation.x) / Mathf.Abs(translationDirection.x * translationAmount));
+                }
+                if (translationProgress.y == 1.0f)
+                {
+                    gainedTranslation.y = 0.0f;
+                }
+                else
+                {
+                    translationProgress.y = Mathf.Clamp01(translationProgress.y + Mathf.Abs(gainedTranslation.y) / Mathf.Abs(translationDirection.y * translationAmount));
+                }
+                if (translationProgress.z == 1.0f)
+                {
+                    gainedTranslation.z = 0.0f;
+                }
+                else
+                {
+                    translationProgress.z = Mathf.Clamp01(translationProgress.z + Mathf.Abs(gainedTranslation.z) / Mathf.Abs(translationDirection.z * translationAmount));
+                }
 
+                // try to apply redirection
                 if (redirectionObject)
                 {
-                    // Add Gain to position       TODO: Check if local or world coordinates
-                    redirectionObject.position += Vector3.Scale(gainVector, translationDelta) - translationDelta;
+                    // Add Gain to position   TODO: Check if local or world coordinates
+                    redirectionObject.position += gainedTranslation;
                 }
                 else
                 {
                     Debug.LogWarning("Redirection Object not set! Redirection can not be applied!");
                 }
 
-                if (translationProgress.x == 1.0f)
-                {
-                    //TODO: End redirection in x direction
-                }
-                if (translationProgress.y == 1.0f)
-                {
-                    //TODO: End redirection in y direction
-                }
-                if (translationProgress.z == 1.0f)
-                {
-                    //TODO: End redirection in z direction
-                }
-
+                // Redirection is done
                 if (translationProgress.magnitude == 3.0f)
                 {
                     EndRedirection();
                 }
             }
 
+            // Save the current head position for the next frame
             lastHeadPosition = hmdPosition;
         }
 
+        /// <summary>
+        /// Get the Gain Vector for the given translation delta
+        /// </summary>
+        /// <param name="translationDelta"> the head movement since the last frame</param>
+        /// <returns> Gain Vector for the given translation delta </returns>
         private Vector3 GetGain(Vector3 translationDelta)
         {
-            throw new System.NotImplementedException();
+            Vector3 gainVector = Vector3.zero;
+
+            Vector3 translationdirectionWorld = transform.TransformDirection(translationDirection);
+            if (!translationdirectionWorld.x.Equals(0.0f))
+            {
+                gainVector.x = (translationdirectionWorld.x < 0.0f && translationDelta.x < 0.0f) || (translationdirectionWorld.x > 0.0f && translationDelta.x > 0.0f) 
+                        ? forwardTranslationGain : backwardTranslationGain;
+            }
+            if (!translationdirectionWorld.y.Equals(0.0f))
+            {
+                gainVector.y = (translationdirectionWorld.y < 0.0f && translationDelta.y < 0.0f) || (translationdirectionWorld.y > 0.0f && translationDelta.y > 0.0f)
+                        ? forwardTranslationGain : backwardTranslationGain;
+            }
+            if (!translationdirectionWorld.z.Equals(0.0f))
+            {
+                gainVector.z = (translationdirectionWorld.z < 0.0f && translationDelta.z < 0.0f) || (translationdirectionWorld.z > 0.0f && translationDelta.z > 0.0f)
+                        ? forwardTranslationGain : backwardTranslationGain;
+            }
+
+            return gainVector;
         }
 
         /// <summary>
@@ -144,9 +187,15 @@ namespace CurvatureGames.SpaceExtender
         /// </summary>
         public override void StartRedirection()
         {
-            translationProgress = Vector3.zero;
-            isRedirecting = true;
-            base.StartRedirection();
+            // Only Start Redirecting if some redirection values are set
+            if (!translationAmount.Equals(0.0f) && !translationDirection.magnitude.Equals(0.0f))
+            {
+                translationProgress = new Vector3(translationDirection.x.Equals(0.0f) ? 1.0f : 0.0f,
+                                                  translationDirection.y.Equals(0.0f) ? 1.0f : 0.0f,
+                                                  translationDirection.z.Equals(0.0f) ? 1.0f : 0.0f);
+                isRedirecting = true;
+                base.StartRedirection();
+            }
         }
 
         /// <summary>
