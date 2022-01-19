@@ -9,6 +9,8 @@ namespace CurvatureGames.SpaceExtender
     /// </summary>
     public class TranslationRedirector : BaseRedirector
     {
+        [SerializeField] private Transform playerCamera;
+
         // Used by custom editor
         /// <summary>
         /// The direction of the translation in local space
@@ -80,15 +82,15 @@ namespace CurvatureGames.SpaceExtender
         /// </summary>
         private void TranslationRedirection()
         {
-            Vector3 hmdPosition;
-            if (!TryGetHMDPosition(out hmdPosition))
+            Vector3 hmdPosition = playerCamera.localPosition;
+            /*if (!TryGetHMDPosition(out hmdPosition))
             {
                 hmdPosition = lastHeadPosition;
-            }
+            }*/
 
             if (isRedirecting)
             {
-                Vector3 translationDelta = hmdPosition - lastHeadPosition;
+                Vector3 translationDelta = playerCamera.TransformVector(hmdPosition - lastHeadPosition);
                 Vector3 gainVector = GetGain(translationDelta);
                 Vector3 gainedTranslation = Vector3.Scale(gainVector, translationDelta);
 
@@ -130,7 +132,7 @@ namespace CurvatureGames.SpaceExtender
                 }
 
                 // Redirection is done
-                if (translationProgress.magnitude == 3.0f)
+                if (translationProgress.sqrMagnitude.Equals(3.0f))
                 {
                     EndRedirection();
                 }
