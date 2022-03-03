@@ -1,16 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using CurvatureGames.SpaceExtender;
 using UnityEngine;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace CurvatureGames.SpaceExtenderEditor
 {
     /// <summary>
-    /// Responsible for custom editor visualizations specific to the rotation redirector.
-    /// Draws rotationpoint and its handles, rotation icon, inspector
+    /// Responsible for custom editor visualizations specific to the translation redirector.
     /// </summary>
     [CustomEditor(typeof(TranslationRedirector))]
     public class TranslationRedirectorEditor : BaseRedirectorEditor
