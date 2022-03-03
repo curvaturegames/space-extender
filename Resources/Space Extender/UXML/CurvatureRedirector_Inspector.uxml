@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+
+xsi:noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+xsi:schemaLocation="
+                        UnityEngine.UIElements ../../../../../../UIElementsSchema/UnityEngine.UIElements.xsd
+                        UnityEditor.UIElements ../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
+                        UnityEditor.PackageManager.UI ../../../../../../UIElementsSchema/UnityEditor.PackageManager.UI.xsd
+"
+>
+    <editor:PropertyField binding-path="playerCamera" name="player-camera-field" tooltip="The camera of the player. (Also known as Head Object)"/>
+    <editor:PropertyField binding-path="virtualDirection" name="virtual-direction-field" tooltip="Direction in local space in which the player needs to walk to apply redirection."/>
+    <editor:PropertyField binding-path="redirectionLength" name="redirection-length-field" tooltip="How many meters the redirection should be applied."/>
+    <editor:PropertyField binding-path="degreesPerMeter" name="degrees-per-meter-field" tooltip="How many degrees the player should be rotated per meter walked."/>
+</engine:UXML>
