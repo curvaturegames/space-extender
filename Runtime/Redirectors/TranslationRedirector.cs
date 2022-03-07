@@ -99,7 +99,7 @@ namespace CurvatureGames.SpaceExtender
             if (isRedirecting)
             {
                 // Calculate the translation delta since last update in world space
-                Vector3 translationDelta = playerCamera.TransformVector(hmdPosition - lastHeadPosition);
+                Vector3 translationDelta = playerCamera.parent.TransformVector(hmdPosition - lastHeadPosition);
                 // Get the gain vector for that translation delta
                 Vector3 gainVector = GetGain(translationDelta);
                 // Calculate the gained translation
