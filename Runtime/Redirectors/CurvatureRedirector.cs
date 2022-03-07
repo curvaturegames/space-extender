@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CurvatureGames.SpaceExtender
@@ -30,6 +31,13 @@ namespace CurvatureGames.SpaceExtender
         /// </summary>
         [SerializeField] private float degreesPerMeter = 10.0f;
 
+        // Used by custom editor
+        /// <summary>
+        /// How often should the gizmo line be sampled (0.1 means that every 10cm the line will be sampled)
+        /// redirectionLength % gizmoLineDistance should result in 0.0 for correct results
+        /// </summary>
+        [SerializeField, Range(0.001f, 1.0f)] private float gizmoLineDistance = 0.1f;
+
         /// <summary>
         /// Center position of the end playarea. (worldspace)
         /// </summary>
@@ -40,7 +48,78 @@ namespace CurvatureGames.SpaceExtender
         /// Rotation of the end playarea. (worldspace)
         /// </summary>
         /// <returns></returns>
-        public override Quaternion EndPlayAreaRotation { get { return transform.rotation * Quaternion.Euler(0, degreesPerMeter * redirectionLength, 0); } }
+        public override Quaternion EndPlayAreaRotation { get { return transform.rotation; } }
+
+        /// <summary>
+        /// Center position of the real end playarea. (worldspace)
+        /// </summary>
+        public Vector3 RealEndPlayAreaPosition { 
+            get
+            {
+                // Initialize Rotation Matrix
+                float degrees = Mathf.Deg2Rad * (degreesPerMeter * gizmoLineDistance);
+                Matrix4x4 rotationMatrix = new Matrix4x4();
+                rotationMatrix.SetColumn(0, new Vector4(Mathf.Cos(degrees), 0.0f, Mathf.Sin(degrees), 0.0f));
+                rotationMatrix.SetColumn(1, new Vector4(0.0f, 1.0f, 0.0f, 0.0f));
+                rotationMatrix.SetColumn(2, new Vector4(-Mathf.Sin(degrees), 0.0f, Mathf.Cos(degrees), 0.0f));
+                rotationMatrix.SetColumn(3, new Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+                // Initialize position and direction
+                Vector3 currentDirection = transform.TransformDirection(virtualDirection.normalized);
+                Vector3 currentPosition = transform.position;
+                
+                // Move along the path to the final position
+                for (float f = gizmoLineDistance; f <= redirectionLength; f += gizmoLineDistance)
+                {
+                    currentPosition += gizmoLineDistance * currentDirection;
+                    currentDirection = rotationMatrix * currentDirection;
+                }
+
+                // return that position
+                return currentPosition;
+            }
+        }
+
+        /// <summary>
+        /// Rotation of the real end playarea (worldspace)
+        /// </summary>
+        public Quaternion RealEndPlayAreaRotation { get { return transform.rotation * Quaternion.Euler(0.0f, -degreesPerMeter * redirectionLength, 0.0f); } }
+
+        /// <summary>
+        /// Array of sampled real path positions (worldspace)
+        /// </summary>
+        public Vector3[] RealPathPositions
+        {
+            get
+            {
+                // Initialize rotation matrix
+                float degrees = Mathf.Deg2Rad * (degreesPerMeter * gizmoLineDistance);
+                Matrix4x4 rotationMatrix = new Matrix4x4();
+                rotationMatrix.SetColumn(0, new Vector4(Mathf.Cos(degrees), 0.0f, Mathf.Sin(degrees), 0.0f));
+                rotationMatrix.SetColumn(1, new Vector4(0.0f, 1.0f, 0.0f, 0.0f));
+                rotationMatrix.SetColumn(2, new Vector4(-Mathf.Sin(degrees), 0.0f, Mathf.Cos(degrees), 0.0f));
+                rotationMatrix.SetColumn(3, new Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+                // Initialize position and direction
+                Vector3 currentDirection = transform.TransformDirection(virtualDirection.normalized);
+                Vector3 currentPosition = transform.position;
+
+                // Initialize list of sampled positions and add the first position
+                List<Vector3> pathPositions = new List<Vector3>();
+                pathPositions.Add(currentPosition);
+
+                // Move along the path and add positions to the list
+                for (float f = gizmoLineDistance; f <= redirectionLength; f += gizmoLineDistance)
+                {
+                    currentPosition += gizmoLineDistance * currentDirection;
+                    pathPositions.Add(currentPosition);
+                    currentDirection = rotationMatrix * currentDirection;
+                }
+
+                // return the list as an array
+                return pathPositions.ToArray();
+            }
+        }
 
         /// <summary>
         /// Whether a redirection is currently in progress
@@ -90,7 +169,7 @@ namespace CurvatureGames.SpaceExtender
             if (isRedirecting)
             {
                 // Calculate the translation delta since last update in world space
-                Vector3 translationDelta = playerCamera.TransformVector(hmdPosition - lastHeadPosition);
+                Vector3 translationDelta = playerCamera.parent.TransformVector(hmdPosition - lastHeadPosition);
                 // Calculate the vector with the translation delta in the right direction
                 Vector3 translationDeltaInVirtualDirection = GetVectorInVirtualDirection(translationDelta);
 
