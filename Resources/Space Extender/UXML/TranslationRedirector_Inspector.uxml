@@ -15,5 +15,7 @@ xsi:schemaLocation="
     <editor:PropertyField binding-path="translationDirection" name="translation-direction-field" tooltip="Direction in local space in which the redirection will happen."/>
     <editor:PropertyField binding-path="translationAmount" name="translation-amount-field" tooltip="Total translation by which the player will be redirected"/>
     <editor:PropertyField binding-path="forwardTranslationGain" name="forward-translation-gain-field" tooltip="Gain that is applied to the translation in the translationDirection by the user."/>
+    <engine:VisualElement name="forward-gain-warning"/>
     <editor:PropertyField binding-path="backwardTranslationGain" name="backward-translation-gain-field" tooltip="Gain that is applied to the translation in the negative translationDirection by the user."/>
+    <engine:VisualElement name="backward-gain-warning"/>
 </engine:UXML>
