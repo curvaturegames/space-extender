@@ -1,11 +1,23 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace CurvatureGames.SpaceExtender
 {
 
     public class CurvatureRedirector : BaseRedirector
     {
+        /// <summary>
+        /// Minimal value that is added to the progress, since 0.0 progress results in an interruption
+        /// </summary>
+        private const float MIN_PROGRESS = 1e-5f;
+
+        // Used by custom editor
+        /// <summary>
+        /// Event that is invoked when the user walks back to the starting position
+        /// </summary>
+        public UnityEvent OnRedirectionInterrupted;
+
         // Used by custom editor
         /// <summary>
         /// Transform of the players camera
@@ -23,7 +35,7 @@ namespace CurvatureGames.SpaceExtender
         /// <summary>
         /// How many meters the redirection should be applied
         /// </summary>
-        [SerializeField] private float redirectionLength = 1.0f;
+        [SerializeField, Min(0.0f)] private float redirectionLength = 1.0f;
 
         // Used by custom editor
         /// <summary>
@@ -36,7 +48,7 @@ namespace CurvatureGames.SpaceExtender
         /// How often should the gizmo line be sampled (0.1 means that every 10cm the line will be sampled)
         /// redirectionLength % gizmoLineDistance should result in 0.0 for correct results
         /// </summary>
-        [SerializeField, Range(0.001f, 1.0f)] private float gizmoLineDistance = 0.1f;
+        [SerializeField, Min(0.001f)] private float gizmoLineDistance = 0.1f;
 
         /// <summary>
         /// Center position of the end playarea. (worldspace)
@@ -141,6 +153,11 @@ namespace CurvatureGames.SpaceExtender
         /// </summary>
         private Vector3 virtualDirectionWorld = Vector3.forward;
 
+        /// <summary>
+        /// Value to check if the user walked back to the starting position
+        /// </summary>
+        private float interruptValue = 0.0f;
+
         protected override void Awake()
         {
             base.Awake();
@@ -172,41 +189,19 @@ namespace CurvatureGames.SpaceExtender
                 Vector3 translationDelta = playerCamera.parent.TransformVector(hmdPosition - lastHeadPosition);
                 // Calculate the vector with the translation delta in the right direction
                 Vector3 translationDeltaInVirtualDirection = GetVectorInVirtualDirection(translationDelta);
+                // Calculate the vector with the translation delta in the opposite direction
+                Vector3 translationDeltaInOppositeDirection = GetVectorInOppositeDirection(translationDelta);
 
-                // Calculate the translation progress for each dimension and nullify a translation delta if it is already finished for that direction
-                // TODO: Currently leads to a rotation that is slightly further than intended
-                if (redirectionProgress.x.Equals(1.0f))
-                {
-                    translationDeltaInVirtualDirection.x = 0.0f;
-                }
-                else
-                {
-                    redirectionProgress.x = Mathf.Clamp01(redirectionProgress.x + Mathf.Abs(translationDeltaInVirtualDirection.x) / Mathf.Abs(virtualDirectionWorld.x * redirectionLength));
-                }
-                if (redirectionProgress.y.Equals(1.0f))
-                {
-                    translationDeltaInVirtualDirection.y = 0.0f;
-                }
-                else
-                {
-                    redirectionProgress.y = Mathf.Clamp01(redirectionProgress.y + Mathf.Abs(translationDeltaInVirtualDirection.y) / Mathf.Abs(virtualDirectionWorld.y * redirectionLength));
-                }
-                if (redirectionProgress.z.Equals(1.0f))
-                {
-                    translationDeltaInVirtualDirection.z = 0.0f;
-                }
-                else
-                {
-                    redirectionProgress.z = Mathf.Clamp01(redirectionProgress.z + Mathf.Abs(translationDeltaInVirtualDirection.z) / Mathf.Abs(virtualDirectionWorld.z * redirectionLength));
-                }
+                // Update the progress and change the deltas if neccessary
+                UpdateRedirectionProgress(ref translationDeltaInVirtualDirection, ref translationDeltaInOppositeDirection);
 
                 // Calculate the degrees of the rotation
-                float rotationDegrees = translationDeltaInVirtualDirection.magnitude * degreesPerMeter;
+                float rotationDegrees = translationDeltaInVirtualDirection.magnitude * degreesPerMeter - translationDeltaInOppositeDirection.magnitude * degreesPerMeter;
 
                 // try to apply redirection
                 if (redirectionObject)
                 {
-                    redirectionObject.transform.RotateAround(redirectionObject.transform.position, transform.TransformDirection(Vector3.up), rotationDegrees);
+                    redirectionObject.transform.RotateAround(playerCamera.position, transform.TransformDirection(Vector3.up), rotationDegrees);
                 }
                 else
                 {
@@ -218,10 +213,98 @@ namespace CurvatureGames.SpaceExtender
                 {
                     EndRedirection();
                 }
+                else if (redirectionProgress.sqrMagnitude.Equals(interruptValue))
+                {
+                    InterruptRedirection();
+                }
             }
 
             // Save the current head position for the next frame
             lastHeadPosition = hmdPosition;
+        }
+
+        /// <summary>
+        /// Calculate the translation progress for each dimension and nullify a translation delta if it is already finished for that direction
+        /// </summary>
+        /// <param name="translationDeltaInVirtualDirection"> translation delta in the virtual direction </param>
+        /// <param name="translationDeltaInOppositeDirection"> translation delta in the opposite direction </param>
+        private void UpdateRedirectionProgress(ref Vector3 translationDeltaInVirtualDirection, ref Vector3 translationDeltaInOppositeDirection)
+        {
+
+            // X in virtual direction
+            if (!translationDeltaInVirtualDirection.x.Equals(0.0f))
+            {
+                if (redirectionProgress.x.Equals(1.0f))
+                {
+                    translationDeltaInVirtualDirection.x = 0.0f;
+                }
+                else
+                {
+                    redirectionProgress.x = Mathf.Clamp01(redirectionProgress.x + Mathf.Abs(translationDeltaInVirtualDirection.x) / Mathf.Abs(virtualDirectionWorld.x * redirectionLength));
+                }
+            }
+            // X in opposite direction
+            else if (!translationDeltaInOppositeDirection.x.Equals(0.0f))
+            {
+                if (redirectionProgress.x.Equals(0.0f))
+                {
+                    translationDeltaInOppositeDirection.x = 0.0f;
+                }
+                else
+                {
+                    redirectionProgress.x = Mathf.Clamp01(redirectionProgress.x - Mathf.Abs(translationDeltaInOppositeDirection.x) / Mathf.Abs(virtualDirectionWorld.x * redirectionLength));
+                }
+            }
+
+            // Y in virtual direction
+            if (!translationDeltaInVirtualDirection.y.Equals(0.0f))
+            {
+                if (redirectionProgress.y.Equals(1.0f))
+                {
+                    translationDeltaInVirtualDirection.y = 0.0f;
+                }
+                else
+                {
+                    redirectionProgress.y = Mathf.Clamp01(redirectionProgress.y + Mathf.Abs(translationDeltaInVirtualDirection.y) / Mathf.Abs(virtualDirectionWorld.y * redirectionLength));
+                }
+            }
+            // Y in opposite direction
+            else if (!translationDeltaInOppositeDirection.y.Equals(0.0f))
+            {
+                if (redirectionProgress.y.Equals(0.0f))
+                {
+                    translationDeltaInOppositeDirection.y = 0.0f;
+                }
+                else
+                {
+                    redirectionProgress.y = Mathf.Clamp01(redirectionProgress.y - Mathf.Abs(translationDeltaInOppositeDirection.y) / Mathf.Abs(virtualDirectionWorld.y * redirectionLength));
+                }
+            }
+
+            // Z in virtual direction
+            if (!translationDeltaInVirtualDirection.z.Equals(0.0f))
+            {
+                if (redirectionProgress.z.Equals(1.0f))
+                {
+                    translationDeltaInVirtualDirection.z = 0.0f;
+                }
+                else
+                {
+                    redirectionProgress.z = Mathf.Clamp01(redirectionProgress.z + Mathf.Abs(translationDeltaInVirtualDirection.z) / Mathf.Abs(virtualDirectionWorld.z * redirectionLength));
+                }
+            }
+            // Z in opposite direction
+            else if (!translationDeltaInOppositeDirection.z.Equals(0.0f))
+            {
+                if (redirectionProgress.z.Equals(0.0f))
+                {
+                    translationDeltaInOppositeDirection.z = 0.0f;
+                }
+                else
+                {
+                    redirectionProgress.z = Mathf.Clamp01(redirectionProgress.z - Mathf.Abs(translationDeltaInOppositeDirection.z) / Mathf.Abs(virtualDirectionWorld.z * redirectionLength));
+                }
+            }
         }
 
         /// <summary>
@@ -257,6 +340,47 @@ namespace CurvatureGames.SpaceExtender
         }
 
         /// <summary>
+        /// Get the translation delta with components that are in the opposite direction of the virtual direction
+        /// </summary>
+        /// <param name="translationDelta"> the head movement since the last frame </param>
+        /// <returns> translation delta with components that are in the opposite direction of the virtual direction </returns>
+        private Vector3 GetVectorInOppositeDirection(Vector3 translationDelta)
+        {
+            // Initialize the direction vector
+            Vector3 directionVector = Vector3.zero;
+
+            // Check if the virtual direction has a x-component and if the translation delta is in the right direction
+            if (!virtualDirectionWorld.x.Equals(0.0f)
+                && (virtualDirectionWorld.x > 0.0f && translationDelta.x < 0.0f) || (virtualDirectionWorld.x < 0.0f && translationDelta.x > 0.0f))
+            {
+                directionVector.x = translationDelta.x;
+            }
+            // Check if the virtual direction has a y-component and if the translation delta is in the right direction
+            if (!virtualDirectionWorld.y.Equals(0.0f)
+                && (virtualDirectionWorld.y > 0.0f && translationDelta.y < 0.0f) || (virtualDirectionWorld.y < 0.0f && translationDelta.y > 0.0f))
+            {
+                directionVector.y = translationDelta.y;
+            }
+            // Check if the virtual direction has a z-component and if the translation delta is in the right direction
+            if (!virtualDirectionWorld.z.Equals(0.0f)
+                && (virtualDirectionWorld.z > 0.0f && translationDelta.z < 0.0f) || (virtualDirectionWorld.z < 0.0f && translationDelta.z > 0.0f))
+            {
+                directionVector.z = translationDelta.z;
+            }
+
+            return directionVector;
+        }
+
+        /// <summary>
+        /// Interrupts the curvature redirection.
+        /// </summary>
+        private void InterruptRedirection()
+        {
+            isRedirecting = false;
+            OnRedirectionInterrupted.Invoke();
+        }
+
+        /// <summary>
         /// Starts applying curvature redirection.
         /// </summary>
         public override void StartRedirection()
@@ -265,9 +389,16 @@ namespace CurvatureGames.SpaceExtender
             if (!redirectionLength.Equals(0.0f) && !virtualDirection.magnitude.Equals(0.0f))
             {
                 // Check if the virtual direction has a component for each dimension
-                redirectionProgress = new Vector3(virtualDirectionWorld.x.Equals(0.0f) ? 1.0f : 0.0f,
-                                                  virtualDirectionWorld.y.Equals(0.0f) ? 1.0f : 0.0f,
-                                                  virtualDirectionWorld.z.Equals(0.0f) ? 1.0f : 0.0f);
+                redirectionProgress = new Vector3(virtualDirectionWorld.x.Equals(0.0f) ? 1.0f : MIN_PROGRESS,
+                                                  virtualDirectionWorld.y.Equals(0.0f) ? 1.0f : MIN_PROGRESS,
+                                                  virtualDirectionWorld.z.Equals(0.0f) ? 1.0f : MIN_PROGRESS);
+
+                // Set the interrupt value, which is used when walking back to the start position
+                interruptValue = 0.0f;
+                interruptValue += virtualDirectionWorld.x.Equals(0.0f) ? 1.0f : 0.0f;
+                interruptValue += virtualDirectionWorld.y.Equals(0.0f) ? 1.0f : 0.0f;
+                interruptValue += virtualDirectionWorld.z.Equals(0.0f) ? 1.0f : 0.0f;
+
                 // Set the flag to true
                 isRedirecting = true;
                 base.StartRedirection();
@@ -282,6 +413,27 @@ namespace CurvatureGames.SpaceExtender
             // Set the flag to false
             isRedirecting = false;
             base.EndRedirection();
+        }
+
+
+        /// <summary>
+        /// Creates another CurvatureRedirector that counters this redirector
+        /// </summary>
+        public void CreateOpposingRedirector()
+        {
+            GameObject opposingRedirectorObject = new GameObject("Opposing_" + gameObject.name);
+            CurvatureRedirector opposingRedirector = opposingRedirectorObject.AddComponent<CurvatureRedirector>();
+            
+            opposingRedirector.transform.position = EndPlayAreaPosition;
+            opposingRedirector.transform.rotation = Quaternion.AngleAxis(180.0f, transform.up) * EndPlayAreaRotation;
+
+            opposingRedirector.playerCamera = playerCamera;
+            opposingRedirector.virtualDirection = virtualDirection;
+            opposingRedirector.redirectionLength = redirectionLength;
+            opposingRedirector.degreesPerMeter = -degreesPerMeter;
+            opposingRedirector.gizmoLineDistance = gizmoLineDistance;
+            opposingRedirector.PlayAreaDimensions = PlayAreaDimensions;
+            opposingRedirector.redirectionObject = redirectionObject;
         }
     }
 }

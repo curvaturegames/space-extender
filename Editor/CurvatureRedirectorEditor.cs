@@ -2,6 +2,7 @@ using CurvatureGames.SpaceExtender;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UIElements;
+using UnityEditor.UIElements;
 using System.Collections.Generic;
 
 namespace CurvatureGames.SpaceExtenderEditor
@@ -29,8 +30,25 @@ namespace CurvatureGames.SpaceExtenderEditor
 
             uxml.Add(baseUxml);
 
+            uxml.Add(new Button(() =>
+            {
+                ((CurvatureRedirector)target).CreateOpposingRedirector();
+            })
+            { text = "Create Opposing Redirector", tooltip = "Creates an redirector that negates the effects of this redirector." });
+
             return uxml;
         }
+
+        /*public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+
+            CurvatureRedirector curvatureRedirector = (CurvatureRedirector)target;
+            if(GUILayout.Button("Create opposing Redirector"))
+            {
+                curvatureRedirector.CreateOpposingRedirector();
+            }
+        }*/
 
         // UIElements does not yet support sceneGUI properly. Until then we still use the old system.
         protected override void OnSceneGUI()

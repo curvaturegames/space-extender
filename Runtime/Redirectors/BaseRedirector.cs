@@ -35,7 +35,7 @@ namespace CurvatureGames.SpaceExtender
 
 
         // properties --------------------------------------------------------------------------------
-        public Vector2 PlayAreaDimensions{get{return playAreaDimensions;}}
+        public Vector2 PlayAreaDimensions{ get { return playAreaDimensions; } protected set { playAreaDimensions = value; } }
         /// <summary>
         /// Center position of the start playarea. (worldspace)
         /// </summary>
