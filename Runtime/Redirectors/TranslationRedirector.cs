@@ -106,7 +106,6 @@ namespace CurvatureGames.SpaceExtender
                 Vector3 gainedTranslation = Vector3.Scale(gainVector, translationDelta);
 
                 // Calculate the translation progress for each dimension and nullify a gain if it is already finished for that direction
-                // TODO: Currently leads to a translation that is slightly further than intended
                 if (translationProgress.x.Equals(1.0f))
                 {
                     gainedTranslation.x = 0.0f;
@@ -135,7 +134,7 @@ namespace CurvatureGames.SpaceExtender
                 // try to apply redirection
                 if (redirectionObject)
                 {
-                    // Add Gain to position   TODO: Check if local or world coordinates
+                    // Add Gain to position
                     redirectionObject.position += gainedTranslation;
                 }
                 else

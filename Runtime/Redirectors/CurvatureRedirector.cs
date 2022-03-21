@@ -48,7 +48,7 @@ namespace CurvatureGames.SpaceExtender
         /// How often should the gizmo line be sampled (0.1 means that every 10cm the line will be sampled)
         /// redirectionLength % gizmoLineDistance should result in 0.0 for correct results
         /// </summary>
-        [SerializeField, Min(0.001f)] private float gizmoLineDistance = 0.1f;
+        [SerializeField, Min(0.0001f)] private float gizmoLineDistance = 0.1f;
 
         /// <summary>
         /// Center position of the end playarea. (worldspace)
