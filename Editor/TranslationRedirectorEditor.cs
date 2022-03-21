@@ -40,7 +40,7 @@ namespace CurvatureGames.SpaceExtenderEditor
             var objectFieldAmount = uxml.Q("translation-amount-field").Q<FloatField>();
             var objectFieldGain = uxml.Q("forward-translation-gain-field").Q<FloatField>();
 
-            if ((objectFieldAmount.value < 0.0f && objectFieldGain.value >= 0.0f) || objectFieldAmount.value > 0.0f && objectFieldGain.value <= 0.0f)
+            if ((objectFieldAmount.value < 0.0f && objectFieldGain.value > 0.0f) || objectFieldAmount.value > 0.0f && objectFieldGain.value < 0.0f)
             {
                 EditorGUILayout.HelpBox(
                     "Forward Translation Gain and Translation Amount must show in the same direction (+/+ or -/-).",
@@ -53,7 +53,7 @@ namespace CurvatureGames.SpaceExtenderEditor
             var objectFieldAmount = uxml.Q("translation-amount-field").Q<FloatField>();
             var objectFieldGain = uxml.Q("backward-translation-gain-field").Q<FloatField>();
 
-            if ((objectFieldAmount.value < 0.0f && objectFieldGain.value <= 0.0f) || objectFieldAmount.value > 0.0f && objectFieldGain.value >= 0.0f)
+            if ((objectFieldAmount.value < 0.0f && objectFieldGain.value < 0.0f) || objectFieldAmount.value > 0.0f && objectFieldGain.value > 0.0f)
             {
                 EditorGUILayout.HelpBox(
                     "Backward Translation Gain and Translation Amount must show in opposite direction (+/- or -/+).",
