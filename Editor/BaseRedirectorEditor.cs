@@ -105,7 +105,7 @@ namespace CurvatureGames.SpaceExtenderEditor
         /// <param name="redirector"></param>
         /// <param name="position"></param>
         /// <param name="rotation"></param>
-        private static void DrawPlayArea(BaseRedirector redirector, Vector3 position, Quaternion rotation)
+        protected static void DrawPlayArea(BaseRedirector redirector, Vector3 position, Quaternion rotation)
         {
             Gizmos.DrawMesh(redirector.GizmoPlayAreaMesh, position, rotation,
                 new Vector3(redirector.PlayAreaDimensions.x, 0f, redirector.PlayAreaDimensions.y));

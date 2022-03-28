@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+
+xsi:noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+xsi:schemaLocation="
+                        UnityEngine.UIElements ../../../../../../UIElementsSchema/UnityEngine.UIElements.xsd
+                        UnityEditor.UIElements ../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
+                        UnityEditor.PackageManager.UI ../../../../../../UIElementsSchema/UnityEditor.PackageManager.UI.xsd
+"
+>
+    <editor:PropertyField binding-path="playerCamera" name="player-camera-field" tooltip="The camera of the player. (Also known as Head Object)"/>
+    <editor:PropertyField binding-path="translationDirection" name="translation-direction-field" tooltip="Direction in local space in which the redirection will happen."/>
+    <editor:PropertyField binding-path="translationAmount" name="translation-amount-field" tooltip="Total translation by which the player will be redirected"/>
+    <editor:PropertyField binding-path="forwardTranslationGain" name="forward-translation-gain-field" tooltip="Gain that is applied to the translation in the translationDirection by the user."/>
+    <engine:VisualElement name="forward-gain-warning"/>
+    <editor:PropertyField binding-path="backwardTranslationGain" name="backward-translation-gain-field" tooltip="Gain that is applied to the translation in the negative translationDirection by the user."/>
+    <engine:VisualElement name="backward-gain-warning"/>
+</engine:UXML>
